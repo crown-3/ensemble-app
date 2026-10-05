@@ -7,6 +7,9 @@ import logo from './logo.png';
 import { NewChat } from './NewChat';
 import './styles.css';
 import { go, Icon, shortWhen, useAppState, useRoute } from './ui';
+import { installWebApi } from './webApi';
+
+installWebApi();
 
 function App() {
   const state = useAppState();

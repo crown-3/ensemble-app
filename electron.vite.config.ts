@@ -9,6 +9,7 @@ export default defineConfig({
         input: {
           index: resolve('src/main/index.ts'),
           'approval-mcp': resolve('src/main/approval-mcp.ts'),
+          web: resolve('src/main/web.ts'),
         },
       },
     },
