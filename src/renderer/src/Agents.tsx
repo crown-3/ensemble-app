@@ -129,9 +129,10 @@ export function AgentEdit({ state, agentId }: { state: AppState; agentId: string
       const s = Math.min(img.width, img.height);
       canvas.getContext('2d')!.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
       set('avatar', canvas.toDataURL('image/png'));
-      URL.revokeObjectURL(img.src);
     };
-    img.src = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.onload = () => { img.src = reader.result as string; };
+    reader.readAsDataURL(file);
   };
 
   const commitHistory = () => {
