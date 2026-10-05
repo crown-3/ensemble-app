@@ -1,7 +1,7 @@
 // Data model. Based on PRODUCT_SPEC.md section 6, extended for phase 1
 // (leader, per-member CLI session, message list).
 
-export type Provider = 'claude' | 'gpt' | 'gemini';
+export type Provider = 'claude' | 'codex' | 'gemini';
 
 export type AgentApprovalMode = 'inherit' | 'always-ask' | 'always-auto';
 export type ChatApprovalMode = 'ask-all' | 'auto-edits' | 'auto-all';

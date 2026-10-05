@@ -84,7 +84,7 @@ function Sidebar({ state, route }: { state: AppState; route: string[] }) {
 
 function Welcome({ state }: { state: AppState }) {
   const steps = [
-    { title: 'Claude Code 로그인', body: '터미널에서 claude 를 실행해 로그인합니다. 에이전트는 이 계정의 세션 한도를 사용합니다.', done: true },
+    { title: 'Claude Code 또는 Codex 로그인', body: '터미널에서 claude 나 codex 를 실행해 로그인합니다. 에이전트는 이 계정의 세션 한도를 사용합니다.', done: true },
     { title: '에이전트 만들기', body: '이름, 직책, 모델, 페르소나를 정합니다.', href: '#/agents/new', action: '만들기', done: state.agents.length > 0 },
     { title: '첫 채팅 시작', body: '에이전트를 초대하고 첫 메시지를 보냅니다.', href: '#/new', action: '새 채팅', done: false },
   ];

@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { Api } from '../shared/types';
 import { runClaudeTurn } from './claude';
+import { runCodexTurn } from './codex';
 import { Ensemble } from './ensemble';
 import { Store } from './store';
 
@@ -20,8 +21,8 @@ export function createBackend(dataDir: string, approvalScript: string, onChange:
 
   const ensemble = new Ensemble(
     store,
-    ({ chatId, agentId, ...opts }) =>
-      runClaudeTurn({
+    ({ chatId, agentId, provider, approvalMode, ...opts }) =>
+      provider === 'codex' ? runCodexTurn({ ...opts, approvalMode }) : runClaudeTurn({
         ...opts,
         mcpConfig: {
           mcpServers: {
