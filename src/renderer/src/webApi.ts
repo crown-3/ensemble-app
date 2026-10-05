@@ -25,6 +25,7 @@ export function installWebApi() {
       }
       // No native folder dialog in a browser: ask for a path on the server machine.
       if (method === 'pickFolder') return async () => prompt('작업 폴더 경로 (Codespace 안의 절대 경로)')?.trim() || null;
+      if (method === 'pickFile') return async () => prompt('파일 경로 (Codespace 안의 절대 경로)')?.trim() || null;
       if (method === 'openPath') return async (p: string) => void open(`/file?path=${encodeURIComponent(p)}`, '_blank');
       return call(method);
     },

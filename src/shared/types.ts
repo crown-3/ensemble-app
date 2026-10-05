@@ -35,10 +35,31 @@ export type ChatMember = {
   sessionId?: string;
 };
 
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  folderPath: string; // every chat of the project works here
+  instructions: string; // sent to every agent in every chat of the project
+  referenceFiles: string[]; // absolute paths the agents always consult
+  createdAt: string;
+};
+
+// Memory is scoped to an (agent, project) pair. Chats outside a project have none (DECISIONS.md #5).
+export type MemoryEntry = {
+  id: string;
+  agentId: string;
+  projectId: string;
+  content: string;
+  createdAt: string;
+  source: { chatId: string } | 'manual';
+};
+
 export type Chat = {
   id: string;
   title: string;
-  folderPath: string;
+  projectId: string | null; // fixed when the chat is created
+  folderPath: string; // the project's folder when projectId is set
   members: ChatMember[];
   leaderAgentId: string;
   approvalMode: ChatApprovalMode;
@@ -76,9 +97,14 @@ export type GlobalSettings = {
 
 export type Data = {
   agents: Agent[];
+  projects: Project[];
   chats: Chat[];
+  memories: MemoryEntry[];
   settings: GlobalSettings;
 };
+
+export type LoginState = 'in' | 'out' | 'missing';
+export type AuthStatus = { claude: LoginState; codex: LoginState };
 
 export type Usage = { utilization: number; resetsAt?: number };
 
@@ -91,7 +117,10 @@ export type AppState = Data & {
 
 export type AgentInput = Omit<Agent, 'id' | 'history' | 'tint'> & { history?: HistoryEntry[] };
 
+export type ProjectInput = Pick<Project, 'name' | 'description' | 'folderPath'>;
+
 export type NewChatInput = {
+  projectId: string | null;
   agentIds: string[];
   leaderAgentId: string;
   folderPath: string;
@@ -108,6 +137,12 @@ export type Api = {
   pickFolder(): Promise<string | null>;
   defaultFolder(): Promise<string>;
   openPath(path: string): Promise<void>;
+  pickFile(): Promise<string | null>;
+  createProject(input: ProjectInput): Promise<string>;
+  updateProject(id: string, patch: Partial<Omit<Project, 'id' | 'createdAt'>>): Promise<void>;
+  deleteProject(id: string): Promise<void>;
+  saveMemory(projectId: string, agentId: string, id: string | null, content: string): Promise<void>;
+  deleteMemory(id: string): Promise<void>;
   createChat(input: NewChatInput): Promise<string>;
   sendMessage(chatId: string, text: string): Promise<void>;
   stopChat(chatId: string): Promise<void>;
@@ -117,4 +152,5 @@ export type Api = {
   setChatApproval(chatId: string, mode: ChatApprovalMode): Promise<void>;
   answerApproval(chatId: string, messageId: string, answer: 'approve' | 'deny' | 'always'): Promise<void>;
   markRead(chatId: string): Promise<void>;
+  authStatus(): Promise<AuthStatus>;
 };

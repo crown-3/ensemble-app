@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { PROVIDERS, TINTS } from '../shared/models';
 import type {
-  Agent, AgentInput, AppState, Chat, ChatApprovalMode, ChatMember, GlobalSettings, Message, NewChatInput, Provider, Usage,
+  Agent, AgentInput, AppState, Chat, ChatApprovalMode, ChatMember, GlobalSettings, MemoryEntry, Message, NewChatInput, Project,
+  ProjectInput, Provider, Usage,
 } from '../shared/types';
 import type { TurnEvent } from './claude';
 import { decide, describe, effectiveMode, respondersForAgent, respondersForUser } from './rules';
@@ -13,6 +14,7 @@ export type RunTurn = (opts: {
   agentId: string;
   provider: Provider;
   approvalMode: ChatApprovalMode;
+  memory: boolean; // the chat is in a project, so the memory tools are offered
   cwd: string;
   model: string;
   sessionId?: string;
@@ -31,6 +33,7 @@ export class Ensemble {
   private running = new Map<string, Running>(); // chatId -> current turn
   private approvals = new Map<string, PendingApproval>(); // approval message id -> waiter
   private usage: Partial<Record<Provider, Usage>> = {};
+  private usageAt: Partial<Record<Provider, number>> = {}; // when each usage was measured
 
   constructor(
     private store: Store,
@@ -90,6 +93,7 @@ export class Ensemble {
       if (chat.members.some((m) => m.agentId === id)) this.removeAgent(chat.id, id, false);
     }
     this.data.agents = this.data.agents.filter((a) => a.id !== id);
+    this.data.memories = this.data.memories.filter((m) => m.agentId !== id);
     this.changed();
   }
 
@@ -98,14 +102,103 @@ export class Ensemble {
     this.changed();
   }
 
+  // --- Projects ---
+
+  createProject(input: ProjectInput): string {
+    const project: Project = { ...input, id: randomUUID(), instructions: '', referenceFiles: [], createdAt: now() };
+    this.data.projects.push(project);
+    this.changed();
+    return project.id;
+  }
+
+  updateProject(id: string, patch: Partial<Omit<Project, 'id' | 'createdAt'>>) {
+    const project = this.project(id);
+    if (!project) return;
+    if (patch.folderPath && patch.folderPath !== project.folderPath) {
+      for (const chat of this.data.chats.filter((c) => c.projectId === id)) {
+        chat.folderPath = patch.folderPath;
+        // CLI sessions belong to the folder they started in, so start fresh ones and resend what each member may read.
+        for (const m of chat.members) {
+          m.sessionId = undefined;
+          m.seenUpTo = m.readFrom;
+        }
+      }
+    }
+    Object.assign(project, patch);
+    this.changed();
+  }
+
+  // Deletes the project with its chats and memories. Files in the work folder are left alone.
+  deleteProject(id: string) {
+    for (const chat of this.data.chats.filter((c) => c.projectId === id)) this.stopChat(chat.id);
+    this.data.chats = this.data.chats.filter((c) => c.projectId !== id);
+    this.data.memories = this.data.memories.filter((m) => m.projectId !== id);
+    this.data.projects = this.data.projects.filter((p) => p.id !== id);
+    this.changed();
+  }
+
+  // --- Memory ---
+
+  // Added or edited by the user on the project memory screen.
+  saveMemory(projectId: string, agentId: string, id: string | null, content: string) {
+    const text = content.trim();
+    if (!text || !this.project(projectId) || !this.agent(agentId)) return;
+    const existing = id ? this.data.memories.find((m) => m.id === id) : undefined;
+    if (existing) existing.content = text;
+    else this.data.memories.push({ id: randomUUID(), agentId, projectId, content: text, createdAt: now(), source: 'manual' });
+    this.changed();
+  }
+
+  deleteMemory(id: string) {
+    this.data.memories = this.data.memories.filter((m) => m.id !== id);
+    this.changed();
+  }
+
+  // Called (via the Ensemble MCP server) when an agent uses its memory tools. Returns the tool's text result.
+  memoryTool(chatId: string, agentId: string, tool: string, args: { id?: string; content?: string }): string {
+    const chat = this.chat(chatId);
+    const agent = this.agent(agentId);
+    if (!chat || !agent) return '채팅이나 에이전트를 찾을 수 없습니다.';
+    if (!chat.projectId) return '이 채팅은 프로젝트에 속하지 않아 메모리를 사용할 수 없습니다.';
+    const content = args.content?.trim() ?? '';
+    const own = (id?: string) => this.data.memories.find((m) => m.id === id && m.agentId === agentId && m.projectId === chat.projectId);
+    let result: string;
+    if (tool === 'memory_save') {
+      if (!content) return '기록할 내용이 비어 있습니다.';
+      const entry: MemoryEntry = { id: randomUUID(), agentId, projectId: chat.projectId, content, createdAt: now(), source: { chatId } };
+      this.data.memories.push(entry);
+      this.push(chat, { kind: 'system', text: `${agent.name}이(가) 기억함: ${content}` });
+      result = `기록했습니다. (id: ${entry.id})`;
+    } else if (tool === 'memory_update') {
+      const entry = own(args.id);
+      if (!entry) return `id가 ${args.id}인 내 메모리 항목이 없습니다.`;
+      if (!content) return '고칠 내용이 비어 있습니다.';
+      entry.content = content;
+      this.push(chat, { kind: 'system', text: `${agent.name}이(가) 기억을 고침: ${content}` });
+      result = '고쳤습니다.';
+    } else if (tool === 'memory_delete') {
+      const entry = own(args.id);
+      if (!entry) return `id가 ${args.id}인 내 메모리 항목이 없습니다.`;
+      this.data.memories = this.data.memories.filter((m) => m !== entry);
+      this.push(chat, { kind: 'system', text: `${agent.name}이(가) 기억을 지움: ${entry.content}` });
+      result = '지웠습니다.';
+    } else {
+      return `알 수 없는 도구입니다: ${tool}`;
+    }
+    this.changed();
+    return result;
+  }
+
   // --- Chats ---
 
   createChat(input: NewChatInput): string {
     const text = input.firstMessage.trim();
+    const project = input.projectId ? this.project(input.projectId) : undefined;
     const chat: Chat = {
       id: randomUUID(),
       title: text.slice(0, 40) || '새 채팅',
-      folderPath: input.folderPath,
+      projectId: project?.id ?? null,
+      folderPath: project?.folderPath ?? input.folderPath,
       members: input.agentIds.map((agentId) => ({ agentId, readFrom: 0, seenUpTo: 0 })),
       leaderAgentId: input.leaderAgentId,
       approvalMode: this.data.settings.defaultApprovalMode,
@@ -178,6 +271,14 @@ export class Ensemble {
     this.changed();
   }
 
+  // Keeps the newest measurement, so a slow startup check cannot overwrite what a turn just reported.
+  setUsage(provider: Provider, usage: Usage, at = Date.now()) {
+    if ((this.usageAt[provider] ?? 0) > at) return;
+    this.usage[provider] = usage;
+    this.usageAt[provider] = at;
+    this.onChange();
+  }
+
   // --- Approvals ---
 
   // Called (via the approval MCP bridge) when the CLI wants to use a tool that needs permission.
@@ -186,7 +287,7 @@ export class Ensemble {
     const chat = this.chat(chatId);
     const agent = this.agent(agentId);
     if (!chat || !agent) return Promise.resolve(deny('채팅이나 에이전트를 찾을 수 없습니다.'));
-    const d = decide(toolName, input, effectiveMode(agent, chat), chat.folderPath);
+    const d = decide(toolName, input, effectiveMode(agent, chat), chat.folderPath, this.referenceFiles(chat));
     if (d.kind === 'allow') return Promise.resolve(allow(input));
     if (d.kind === 'deny') return Promise.resolve(deny(d.message));
     const msg = this.push(chat, { kind: 'approval', agentId, toolName, ...describe(toolName, input, chat.folderPath), status: 'pending' });
@@ -250,6 +351,7 @@ export class Ensemble {
       agentId: agent.id,
       provider: agent.provider,
       approvalMode: effectiveMode(agent, chat),
+      memory: !!chat.projectId,
       cwd: chat.folderPath,
       model: agent.model,
       sessionId: member.sessionId,
@@ -282,7 +384,7 @@ export class Ensemble {
         member.sessionId = e.id;
         break;
       case 'usage':
-        this.usage[agent.provider] = { utilization: e.utilization, resetsAt: e.resetsAt };
+        this.setUsage(agent.provider, { utilization: e.utilization, resetsAt: e.resetsAt });
         break;
       case 'thinking':
         this.push(chat, { kind: 'thinking', agentId: agent.id, seconds: e.seconds });
@@ -328,6 +430,7 @@ export class Ensemble {
   }
 
   private systemPromptFor(chat: Chat, agent: Agent): string {
+    const project = chat.projectId ? this.project(chat.projectId) : undefined;
     const members = chat.members
       .map((m) => this.agent(m.agentId))
       .filter((a): a is Agent => !!a)
@@ -344,9 +447,32 @@ export class Ensemble {
         '- 답변은 채팅 메시지처럼 간결하게 씁니다.',
         `- 작업 폴더는 ${chat.folderPath} 입니다. 이 폴더 안에서만 파일을 읽고 만들고 수정합니다.`,
       ].join('\n'),
+      // Order from the spec (4.3): global instructions, project instructions, persona.
       this.data.settings.globalInstructions && `# 전역 지침\n${this.data.settings.globalInstructions}`,
+      project?.instructions && `# 프로젝트 지침\n${project.instructions}`,
+      project?.referenceFiles.length &&
+        `# 참고 파일\n이 프로젝트에서 항상 참고하는 파일입니다. 작업과 관련이 있으면 먼저 읽습니다. 작업 폴더 밖에 있어도 읽을 수 있지만 수정하지는 않습니다.\n${project.referenceFiles.map((f) => `- ${f}`).join('\n')}`,
       agent.persona && `# 페르소나 및 역할\n${agent.persona}`,
+      project && this.memoryPrompt(project, agent),
     ].filter(Boolean).join('\n\n');
+  }
+
+  // Follows the precedent of ChatGPT saved memories and Claude Code auto memory: always record what the user asks
+  // to remember, otherwise only what a later chat would need, one short fact per entry, kept up to date.
+  private memoryPrompt(project: Project, agent: Agent): string {
+    const entries = this.data.memories.filter((m) => m.agentId === agent.id && m.projectId === project.id);
+    return [
+      '# 프로젝트 메모리',
+      `이 채팅은 '${project.name}' 프로젝트에 속합니다. 당신에게는 이 프로젝트의 채팅들 사이에서 이어지는 당신만의 메모리가 있습니다. 다른 에이전트의 메모리와 분리되어 있고, 다른 프로젝트에서는 쓰이지 않습니다.`,
+      '- 사용자가 기억해 달라고 하면 반드시 memory_save 도구로 기록합니다.',
+      '- 그 밖에는 이 프로젝트의 다음 채팅에서도 쓸모 있는 정보일 때만 기록합니다: 사용자의 선호와 작업 방식, 사용자가 바로잡아 주거나 확인해 준 방식, 확정된 결정, 파일만 봐서는 알 수 없는 프로젝트 사정.',
+      '- 작업 폴더의 파일에서 알 수 있는 내용, 지침에 이미 있는 내용, 이번 채팅에서만 필요한 내용은 기록하지 않습니다. 매 턴 기록할 필요는 없습니다.',
+      '- 사용자가 요청하지 않는 한 민감한 개인 정보는 기록하지 않습니다.',
+      '- 한 항목에는 한 가지 사실만 한두 문장으로 씁니다. 이미 있는 항목과 겹치거나 바뀐 내용이면 새로 만들지 말고 memory_update로 고치고, 더 이상 맞지 않는 항목은 memory_delete로 지웁니다.',
+      '',
+      '현재 메모리:',
+      entries.length ? entries.map((m) => `- [id: ${m.id}] ${m.content}`).join('\n') : '(아직 없음)',
+    ].join('\n');
   }
 
   // --- helpers ---
@@ -364,6 +490,14 @@ export class Ensemble {
 
   private agent(id: string) {
     return this.data.agents.find((a) => a.id === id);
+  }
+
+  private project(id: string) {
+    return this.data.projects.find((p) => p.id === id);
+  }
+
+  private referenceFiles(chat: Chat): string[] {
+    return (chat.projectId && this.project(chat.projectId)?.referenceFiles) || [];
   }
 }
 

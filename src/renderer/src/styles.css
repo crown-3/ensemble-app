@@ -16,7 +16,7 @@
   --on-accent: #ffffff;
   --accent-text: #0a62d0;
   --bubble-received: #e9e9ec;
-  --working: #1b7f37; /* bubble-fallback, used for the "working" status dot */
+  --available: #1b7f37; /* bubble-fallback, status dot while the session limit has room left */
   --idle: #8a8a8f;
   --field: #ffffff;
   --field-border: #8a8a8f;
@@ -47,7 +47,7 @@
     --accent: #1a6fdc;
     --accent-text: #6cb0ff;
     --bubble-received: #3a3a3d;
-    --working: #1f8039;
+    --available: #1f8039;
     --idle: #7d7d82;
     --field: #1c1c1e;
     --field-border: #7d7d82;
@@ -158,6 +158,13 @@ select.field { padding: 0 8px; }
 .nav-row[aria-current='page'], .chat-row[aria-current='page'] { background: var(--accent); color: var(--on-accent); }
 .chat-row[aria-current='page'] .sub { color: var(--on-accent); }
 .nav-row[aria-current='page'] svg { stroke: currentColor; }
+.tiny-btn {
+  width: 24px; height: 24px; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 8px; background: transparent; color: var(--ink-secondary);
+}
+.project-row { gap: 4px; padding: 0 8px 0 4px; border-radius: 8px; color: var(--ink); }
+.project-row[aria-current='page'] { background: var(--accent); color: var(--on-accent); }
+.project-row[aria-current='page'] .tiny-btn, .project-row[aria-current='page'] .count { color: var(--on-accent); }
 .unread-dot { width: 8px; height: 8px; flex-shrink: 0; border-radius: 999px; background: var(--accent); }
 
 /* Page (non-chat screens) */

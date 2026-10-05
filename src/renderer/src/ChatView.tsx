@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { splitMentions } from '../../shared/mentions';
 import { modelLabel } from '../../shared/models';
-import type { Agent, AppState, Chat, ChatApprovalMode, Message } from '../../shared/types';
+import type { Agent, AppState, Chat, ChatApprovalMode, Message, Usage } from '../../shared/types';
 import { api, Avatar, dayLabel, Icon, MentionText, timeLabel } from './ui';
 
 const CHAT_MODES: { id: ChatApprovalMode; label: string }[] = [
@@ -20,6 +20,7 @@ export function ChatView({ state, chatId }: { state: AppState; chatId: string })
   const working = state.working[chat.id] ?? [];
   const queued = state.queued[chat.id] ?? [];
   const busy = working.length > 0 || queued.length > 0;
+  const project = state.projects.find((p) => p.id === chat.projectId);
 
   useEffect(() => {
     if (chat.unread) api().markRead(chat.id);
@@ -31,7 +32,9 @@ export function ChatView({ state, chatId }: { state: AppState; chatId: string })
         <header className="chat-top glass">
           <div className="col grow" style={{ gap: 2 }}>
             <h1 style={{ fontSize: 13, lineHeight: '16px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chat.title}</h1>
-            <div className="meta">프로젝트 없음 · 에이전트 {members.length}명 참여</div>
+            <div className="meta">
+              {project ? <a href={`#/project/${project.id}`}>{project.name}</a> : '프로젝트 없음'} · 에이전트 {members.length}명 참여
+            </div>
           </div>
           <button className="btn float-btn" aria-expanded={invite} onClick={() => setInvite(!invite)}>
             <Icon.invite /><span>에이전트 초대</span>
@@ -47,7 +50,7 @@ export function ChatView({ state, chatId }: { state: AppState; chatId: string })
           <button className="row btn-text small" style={{ color: 'var(--ink-secondary)', gap: 4 }} title="작업 폴더 열기" onClick={() => api().openPath(chat.folderPath)}>
             <Icon.folder size={14} /><span>{tildify(chat.folderPath)}</span>
           </button>
-          <label className="row small muted" style={{ gap: 4 }}>
+          <label className="row small muted" style={{ gap: 8 }}>
             <span>승인</span>
             <select value={chat.approvalMode} onChange={(e) => api().setChatApproval(chat.id, e.target.value as ChatApprovalMode)}
               style={{ height: 28, padding: '0 4px', border: '1px solid var(--field-border)', borderRadius: 8, background: 'var(--field)', color: 'var(--ink)', fontSize: 12 }}>
@@ -68,7 +71,8 @@ export function ChatView({ state, chatId }: { state: AppState; chatId: string })
           <div role="alertdialog" aria-labelledby="rm-title" className="popover dialog" onClick={(e) => e.stopPropagation()}>
             <h1 id="rm-title" className="title">{removing.name}을(를) 이 채팅에서 내보낼까요?</h1>
             <p className="muted" style={{ lineHeight: '17px' }}>
-              {removing.name}은(는) 이후의 대화를 볼 수 없습니다. 진행 중인 작업은 멈춥니다. 언제든지 다시 초대할 수 있습니다.
+              {removing.name}은(는) 이후의 대화를 볼 수 없습니다. 진행 중인 작업은 멈춥니다.{' '}
+              {project ? '이 프로젝트에서 쌓은 기억은 그대로 유지되며, 언제든지 다시 초대할 수 있습니다.' : '언제든지 다시 초대할 수 있습니다.'}
             </p>
             <div className="row" style={{ justifyContent: 'flex-end', gap: 8, paddingTop: 12 }}>
               <button className="btn" onClick={() => setRemoving(null)}>취소</button>
@@ -326,6 +330,7 @@ function MembersPanel({ state, chat, members, working, queued, onRemove, onInvit
   onRemove: (a: Agent) => void; onInvite: () => void;
 }) {
   const others = state.agents.filter((a) => !members.includes(a));
+  const project = state.projects.find((p) => p.id === chat.projectId);
   return (
     <aside className="side right" aria-label="멤버 상태">
       <div className="side-head"><h2 style={{ fontSize: 13, lineHeight: '16px', fontWeight: 700 }}>멤버</h2></div>
@@ -343,7 +348,7 @@ function MembersPanel({ state, chat, members, working, queued, onRemove, onInvit
               <div key={a.id} className="member">
                 <div className="status-wrap">
                   <Avatar agent={a} size={40} />
-                  <span className="status-dot" style={{ background: isWorking ? 'var(--working)' : 'var(--idle)' }} />
+                  <StatusDot usage={usage} />
                 </div>
                 <div className="col grow" style={{ gap: 2 }}>
                   <div className="row" style={{ alignItems: 'baseline', gap: 8 }}>
@@ -384,7 +389,7 @@ function MembersPanel({ state, chat, members, working, queued, onRemove, onInvit
               <div key={a.id} className="row" style={{ gap: 12, padding: 8 }}>
                 <div className="status-wrap">
                   <Avatar agent={a} size={40} />
-                  <span className="status-dot" style={{ background: 'var(--idle)' }} />
+                  <StatusDot usage={state.usage[a.provider]} />
                 </div>
                 <div className="col grow" style={{ gap: 2 }}>
                   <span style={{ fontWeight: 700 }}>{a.name}</span>
@@ -397,7 +402,9 @@ function MembersPanel({ state, chat, members, working, queued, onRemove, onInvit
         )}
       </div>
       <div className="meta" style={{ flexShrink: 0, padding: '12px 16px', borderTop: '1px solid var(--separator)' }}>
-        프로젝트에 속하지 않은 채팅이므로 에이전트는 이 채팅의 대화만 기억합니다.
+        {project
+          ? `에이전트는 '${project.name}' 프로젝트 안에서만 이 프로젝트의 기억을 공유합니다.`
+          : '프로젝트에 속하지 않은 채팅이므로 에이전트는 이 채팅의 대화만 기억합니다.'}
       </div>
     </aside>
   );
@@ -458,4 +465,10 @@ function tildify(p: string): string {
 
 function relative(folder: string, p: string): string {
   return p.startsWith(folder + '/') ? p.slice(folder.length + 1) : p;
+}
+
+// Green while the agent's session limit has room left, grey once it is used up. Unknown usage counts as available.
+function StatusDot({ usage }: { usage?: Usage }) {
+  const out = !!usage && usage.utilization >= 1;
+  return <span className="status-dot" title={out ? '세션 한도 소진' : '사용 가능'} style={{ background: out ? 'var(--idle)' : 'var(--available)' }} />;
 }

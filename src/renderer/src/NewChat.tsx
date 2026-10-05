@@ -3,15 +3,18 @@ import { modelLabel } from '../../shared/models';
 import type { AppState } from '../../shared/types';
 import { api, Avatar, go, Icon } from './ui';
 
-export function NewChat({ state }: { state: AppState }) {
+export function NewChat({ state, projectId }: { state: AppState; projectId: string | null }) {
+  const project = state.projects.find((p) => p.id === projectId);
   const [picked, setPicked] = useState<string[]>([]);
   const [leader, setLeader] = useState<string | null>(null);
-  const [folder, setFolder] = useState('');
+  const [chosenFolder, setFolder] = useState('');
   const [text, setText] = useState('');
+  // A project chat always works in the project's folder.
+  const folder = project?.folderPath ?? chosenFolder;
 
   useEffect(() => {
-    api().defaultFolder().then((f) => setFolder((cur) => cur || f));
-  }, []);
+    if (!project) api().defaultFolder().then((f) => setFolder((cur) => cur || f));
+  }, [project]);
 
   const toggle = (id: string) => {
     const next = picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id];
@@ -23,13 +26,16 @@ export function NewChat({ state }: { state: AppState }) {
 
   const start = async () => {
     if (!canStart) return;
-    const id = await api().createChat({ agentIds: picked, leaderAgentId: leader, folderPath: folder, firstMessage: text });
+    const id = await api().createChat({ projectId: project?.id ?? null, agentIds: picked, leaderAgentId: leader, folderPath: folder, firstMessage: text });
     go(`#/chat/${id}`);
   };
 
   return (
     <main className="page">
-      <header className="page-head"><h1>새 채팅</h1></header>
+      <header className="page-head" style={{ gap: 8 }}>
+        {project && <><a href={`#/project/${project.id}`}>{project.name}</a><span className="muted">/</span></>}
+        <h1>새 채팅</h1>
+      </header>
       <div className="page-body" style={{ padding: '48px 24px' }}>
         <div className="col" style={{ maxWidth: 720, margin: '0 auto', gap: 24 }}>
           <div className="col" style={{ gap: 8 }}>
@@ -78,19 +84,28 @@ export function NewChat({ state }: { state: AppState }) {
 
           <div className="row" style={{ alignItems: 'flex-start', gap: 12, padding: 12, borderRadius: 14, background: 'var(--surface-sidebar)' }}>
             <span className="muted" style={{ flexShrink: 0 }}><Icon.folder /></span>
-            <div className="col" style={{ gap: 2 }}>
-              <div style={{ fontWeight: 700 }}>프로젝트 없음</div>
-              <div className="small muted">이 채팅은 어느 프로젝트에도 속하지 않습니다. 채팅을 만든 뒤에는 프로젝트로 옮길 수 없습니다.</div>
-            </div>
+            {project ? (
+              <div className="col" style={{ gap: 2 }}>
+                <div style={{ fontWeight: 700 }}>{project.name}</div>
+                <div className="small muted">이 채팅은 '{project.name}' 프로젝트에 속합니다. 에이전트는 이 프로젝트의 지침과 참고 파일을 따르고, 이 프로젝트에서 쌓은 기억을 함께 사용합니다.</div>
+              </div>
+            ) : (
+              <div className="col" style={{ gap: 2 }}>
+                <div style={{ fontWeight: 700 }}>프로젝트 없음</div>
+                <div className="small muted">이 채팅은 어느 프로젝트에도 속하지 않습니다. 채팅을 만든 뒤에는 프로젝트로 옮길 수 없으므로, 프로젝트에 넣으려면 해당 프로젝트 화면에서 새 채팅을 시작하세요.</div>
+              </div>
+            )}
           </div>
 
           <div className="row card" style={{ flexWrap: 'wrap', gap: 12, padding: 12 }}>
             <div className="col" style={{ flex: '1 1 280px', minWidth: 0, gap: 2 }}>
               <div style={{ fontWeight: 700 }}>작업 폴더</div>
               <div className="mono" style={{ overflowWrap: 'anywhere' }}>{folder || '…'}</div>
-              <div className="small muted">에이전트는 이 폴더 안에서만 파일을 읽고 만들고 수정합니다.</div>
+              <div className="small muted">
+                {project ? '프로젝트의 작업 폴더입니다. 프로젝트 홈에서 바꿀 수 있습니다.' : '에이전트는 이 폴더 안에서만 파일을 읽고 만들고 수정합니다.'}
+              </div>
             </div>
-            <button className="btn" onClick={async () => { const f = await api().pickFolder(); if (f) setFolder(f); }}>폴더 변경</button>
+            {!project && <button className="btn" onClick={async () => { const f = await api().pickFolder(); if (f) setFolder(f); }}>폴더 변경</button>}
           </div>
 
           <div className="col" style={{ gap: 8 }}>

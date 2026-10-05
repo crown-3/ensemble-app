@@ -2,7 +2,9 @@
 // into Ensemble events.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import type { Usage } from '../shared/types';
 
 export type TurnEvent =
   | { type: 'session'; id: string }
@@ -11,7 +13,10 @@ export type TurnEvent =
   | { type: 'file'; path: string; action: 'created' | 'modified' }
   | { type: 'usage'; utilization: number; resetsAt?: number };
 
+export type McpServer = { command: string; args: string[]; env: Record<string, string> };
+
 export type TurnOptions = {
+  memory: boolean; // offer the Ensemble memory tools (project chats)
   cwd: string;
   model: string;
   sessionId?: string;
@@ -23,6 +28,7 @@ export type TurnOptions = {
 
 const TOOLS = ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash', 'WebFetch', 'WebSearch', 'NotebookEdit'];
 const FILE_TOOLS = ['Write', 'Edit', 'NotebookEdit'];
+const MEMORY_TOOLS = ['memory_save', 'memory_update', 'memory_delete'];
 
 export function runClaudeTurn(opts: TurnOptions): { done: Promise<void>; kill: () => void } {
   const args = [
@@ -36,6 +42,8 @@ export function runClaudeTurn(opts: TurnOptions): { done: Promise<void>; kill: (
     '--mcp-config', JSON.stringify(opts.mcpConfig),
     '--strict-mcp-config',
     '--permission-prompt-tool', 'mcp__ensemble__approve',
+    // The agent's own memory needs no approval card.
+    ...(opts.memory ? ['--allowedTools', MEMORY_TOOLS.map((t) => `mcp__ensemble__${t}`).join(',')] : []),
     '--append-system-prompt', opts.systemPrompt,
   ];
   if (opts.sessionId) args.push('--resume', opts.sessionId);
@@ -119,4 +127,22 @@ export function runClaudeTurn(opts: TurnOptions): { done: Promise<void>; kill: (
       child.kill('SIGTERM');
     },
   };
+}
+
+// Last usage Claude Code itself fetched (`cachedUsageUtilization` in its .claude.json), shown when the
+// app opens because the CLI has no command that reports usage without a turn. Not a documented
+// format, so anything unexpected just leaves usage unknown. Utilization here is a percentage.
+export function readClaudeUsage(): { usage: Usage; at: number } | null {
+  try {
+    const file = path.join(process.env.CLAUDE_CONFIG_DIR || os.homedir(), '.claude.json');
+    const cached = JSON.parse(fs.readFileSync(file, 'utf8')).cachedUsageUtilization;
+    const w = cached?.utilization?.five_hour;
+    if (typeof w?.utilization !== 'number' || typeof cached.fetchedAtMs !== 'number') return null;
+    const resetsAt = w.resets_at ? Math.round(Date.parse(w.resets_at) / 1000) : undefined;
+    // The window has reset since the CLI looked, so nothing is used yet.
+    if (resetsAt && resetsAt * 1000 < Date.now()) return { usage: { utilization: 0 }, at: cached.fetchedAtMs };
+    return { usage: { utilization: w.utilization / 100, resetsAt }, at: cached.fetchedAtMs };
+  } catch {
+    return null;
+  }
 }

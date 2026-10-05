@@ -8,7 +8,7 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve('src/main/index.ts'),
-          'approval-mcp': resolve('src/main/approval-mcp.ts'),
+          'ensemble-mcp': resolve('src/main/ensemble-mcp.ts'),
           web: resolve('src/main/web.ts'),
         },
       },

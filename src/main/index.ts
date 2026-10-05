@@ -8,12 +8,16 @@ import { createBackend } from './core';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const { store, ensemble, handlers } = createBackend(
   process.env.ENSEMBLE_DATA_DIR ?? app.getPath('userData'),
-  path.join(here, 'approval-mcp.js'),
+  path.join(here, 'ensemble-mcp.js'),
   () => broadcast(),
 );
 
 handlers.pickFolder = async () => {
   const r = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
+  return r.canceled ? null : r.filePaths[0];
+};
+handlers.pickFile = async () => {
+  const r = await dialog.showOpenDialog({ properties: ['openFile'] });
   return r.canceled ? null : r.filePaths[0];
 };
 handlers.openPath = (p) => shell.openPath(p);

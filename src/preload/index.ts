@@ -3,9 +3,10 @@ import type { Api, AppState } from '../shared/types';
 
 // contextBridge copies plain objects only, so every method is listed explicitly.
 const methods: Exclude<keyof Api, 'onState'>[] = [
-  'getState', 'saveAgent', 'duplicateAgent', 'deleteAgent', 'saveSettings', 'pickFolder', 'defaultFolder', 'openPath',
+  'getState', 'saveAgent', 'duplicateAgent', 'deleteAgent', 'saveSettings', 'pickFolder', 'pickFile', 'defaultFolder', 'openPath',
+  'createProject', 'updateProject', 'deleteProject', 'saveMemory', 'deleteMemory',
   'createChat', 'sendMessage', 'stopChat', 'inviteAgent', 'removeAgent', 'setLeader', 'setChatApproval', 'answerApproval',
-  'markRead',
+  'markRead', 'authStatus',
 ];
 
 const api = Object.fromEntries(methods.map((m) => [m, (...args: unknown[]) => ipcRenderer.invoke('api', m, ...args)]));

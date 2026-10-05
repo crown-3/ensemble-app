@@ -43,8 +43,8 @@ npm run e2e        # 실제 claude CLI로 대화, 승인, 정지를 확인 (세�
 | `src/main/ensemble.ts` | 채팅 진행: 응답 순서, 에이전트에게 보낼 프롬프트, 승인 대기 |
 | `src/main/rules.ts` | 누가 응답하는지, 어떤 작업을 승인 없이 실행하는지 |
 | `src/main/claude.ts` | `claude -p --output-format stream-json`을 실행하고 출력을 채팅 이벤트로 변환 |
-| `src/main/codex.ts` | `codex exec --json`을 실행하고 출력을 같은 채팅 이벤트로 변환 |
-| `src/main/approval-mcp.ts` | CLI의 권한 확인 요청을 앱으로 넘기는 MCP 서버(`--permission-prompt-tool`) |
+| `src/main/codex.ts` | `codex app-server`(JSON-RPC)로 턴을 실행하고, 알림을 같은 채팅 이벤트로, 승인 요청을 승인 카드로 변환 |
+| `src/main/ensemble-mcp.ts` | CLI가 실행하는 MCP 서버. Claude의 권한 확인 요청(`--permission-prompt-tool`)과 에이전트의 메모리 도구를 앱으로 넘김 |
 | `src/main/store.ts` | JSON 파일 저장 |
 | `src/main/core.ts` | 데스크톱과 브라우저 모드가 함께 쓰는 백엔드 |
 | `src/main/web.ts` | 브라우저 모드 서버 (`npm run web`) |

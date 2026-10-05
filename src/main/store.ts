@@ -4,7 +4,9 @@ import type { Data } from '../shared/types';
 
 const EMPTY: Data = {
   agents: [],
+  projects: [],
   chats: [],
+  memories: [],
   settings: { globalInstructions: '', defaultApprovalMode: 'ask-all', theme: 'system' },
 };
 
@@ -21,6 +23,7 @@ export class Store {
     this.data = fs.existsSync(this.file)
       ? { ...structuredClone(EMPTY), ...JSON.parse(fs.readFileSync(this.file, 'utf8')) }
       : structuredClone(EMPTY);
+    for (const chat of this.data.chats) chat.projectId ??= null; // chats saved before projects existed
   }
 
   save(): void {

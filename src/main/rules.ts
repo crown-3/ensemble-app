@@ -34,8 +34,10 @@ const EDIT_TOOLS = ['Write', 'Edit', 'NotebookEdit'];
 
 export type Decision = { kind: 'allow' } | { kind: 'deny'; message: string } | { kind: 'ask' };
 
-export function decide(toolName: string, input: Record<string, unknown>, mode: ChatApprovalMode, folder: string): Decision {
+// readable: files outside the folder that may still be read (the project's reference files).
+export function decide(toolName: string, input: Record<string, unknown>, mode: ChatApprovalMode, folder: string, readable: string[] = []): Decision {
   const target = targetPath(input);
+  if (target && toolName === 'Read' && readable.includes(path.resolve(folder, target))) return { kind: 'allow' };
   if (target && !isInside(path.resolve(folder, target), folder)) {
     return { kind: 'deny', message: `작업 폴더(${folder}) 밖의 파일에는 접근할 수 없습니다.` };
   }
@@ -69,7 +71,7 @@ function targetPath(input: Record<string, unknown>): string | null {
   return typeof p === 'string' ? p : null;
 }
 
-function isInside(p: string, folder: string): boolean {
+export function isInside(p: string, folder: string): boolean {
   const rel = path.relative(path.resolve(folder), p);
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
 }

@@ -16,7 +16,7 @@ const rendererDir = path.join(here, '../renderer');
 
 const clients = new Set<http.ServerResponse>();
 let pending: NodeJS.Timeout | null = null;
-const { store, ensemble, handlers } = createBackend(dataDir, path.join(here, 'approval-mcp.js'), () => {
+const { store, ensemble, handlers } = createBackend(dataDir, path.join(here, 'ensemble-mcp.js'), () => {
   if (pending) return;
   pending = setTimeout(() => {
     pending = null;
@@ -34,10 +34,13 @@ const TYPES: Record<string, string> = {
 // "열기" in the browser: show a file (or a folder listing), but only inside a chat's work folder.
 function serveWorkFile(p: string, res: http.ServerResponse) {
   const abs = path.resolve(p);
-  const allowed = store.data.chats.some((c) => {
-    const rel = path.relative(c.folderPath, abs);
-    return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
-  });
+  const folders = [...store.data.chats, ...store.data.projects].map((x) => x.folderPath);
+  const allowed =
+    store.data.projects.some((p) => p.referenceFiles.includes(abs)) ||
+    folders.some((f) => {
+      const rel = path.relative(f, abs);
+      return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+    });
   if (!allowed || !fs.existsSync(abs)) return res.writeHead(404).end('Not found');
   if (fs.statSync(abs).isDirectory()) {
     const names = fs.readdirSync(abs, { withFileTypes: true }).map((d) => d.name + (d.isDirectory() ? '/' : ''));
