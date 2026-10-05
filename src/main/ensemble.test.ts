@@ -5,6 +5,7 @@ import { describe as group, expect, it } from 'vitest';
 import { findMentions, splitMentions } from '../shared/mentions';
 import type { Agent, Chat } from '../shared/types';
 import type { TurnEvent } from './claude';
+import { runCodexTurn } from './codex';
 import { Ensemble, type RunTurn } from './ensemble';
 import { decide, effectiveMode } from './rules';
 import { Store } from './store';
@@ -128,5 +129,53 @@ group('turn loop', () => {
     expect(JSON.parse(await answer)).toMatchObject({ behavior: 'allow' });
     // "always" auto-approves this agent's next request in this chat.
     expect(JSON.parse(await app.requestApproval(chatId, ids['서윤'], 'Bash', { command: 'ls' }))).toMatchObject({ behavior: 'allow' });
+  });
+});
+
+group('codex adapter', () => {
+  // A fake `codex` on PATH that records its arguments and prints scripted JSONL.
+  function fakeCodex(lines: object[]) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ensemble-codex-'));
+    const out = lines.map((l) => JSON.stringify(l)).join('\n');
+    fs.writeFileSync(path.join(dir, 'codex'), `#!/bin/sh\nprintf '%s\\n' "$@" > "${dir}/args"\ncat > /dev/null\ncat <<'EOF'\n${out}\nEOF\n`, { mode: 0o755 });
+    const oldPath = process.env.PATH;
+    process.env.PATH = `${dir}${path.delimiter}${oldPath}`;
+    return { dir, args: () => fs.readFileSync(path.join(dir, 'args'), 'utf8').split('\n'), restore: () => (process.env.PATH = oldPath) };
+  }
+
+  it.skipIf(process.platform === 'win32')('maps codex events and picks the sandbox from the approval mode', async () => {
+    const fake = fakeCodex([
+      { type: 'thread.started', thread_id: 't1' },
+      { type: 'error', message: 'Reconnecting... 1/5' },
+      { type: 'item.completed', item: { type: 'file_change', status: 'completed', changes: [{ path: 'a.md', kind: 'add' }, { path: 'b.md', kind: 'delete' }] } },
+      { type: 'item.completed', item: { type: 'agent_message', text: ' @도윤 확인해 주세요 ' } },
+    ]);
+    try {
+      const events: TurnEvent[] = [];
+      const t = runCodexTurn({ cwd: fake.dir, model: 'default', sessionId: 't0', systemPrompt: 'sys', prompt: 'hi', approvalMode: 'ask-all', onEvent: (e) => events.push(e) });
+      await t.done;
+      expect(events).toEqual([
+        { type: 'session', id: 't1' },
+        { type: 'file', path: path.join(fake.dir, 'a.md'), action: 'created' },
+        { type: 'text', text: '@도윤 확인해 주세요' },
+      ]);
+      const args = fake.args();
+      expect(args.slice(0, 3)).toEqual(['exec', 'resume', 't0']);
+      expect(args).toContain('sandbox_mode="read-only"');
+      expect(args).not.toContain('-m');
+    } finally {
+      fake.restore();
+    }
+  });
+
+  it.skipIf(process.platform === 'win32')('reports a failed turn as an error', async () => {
+    const fake = fakeCodex([{ type: 'thread.started', thread_id: 't1' }, { type: 'turn.failed', error: { message: 'model not found' } }]);
+    try {
+      const t = runCodexTurn({ cwd: fake.dir, model: 'gpt-6-sol', systemPrompt: '', prompt: 'hi', approvalMode: 'auto-edits', onEvent: () => {} });
+      await expect(t.done).rejects.toThrow('model not found');
+      expect(fake.args()).toContain('sandbox_mode="workspace-write"');
+    } finally {
+      fake.restore();
+    }
   });
 });

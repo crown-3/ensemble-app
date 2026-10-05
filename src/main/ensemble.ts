@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import { TINTS } from '../shared/models';
+import { PROVIDERS, TINTS } from '../shared/models';
 import type {
   Agent, AgentInput, AppState, Chat, ChatApprovalMode, ChatMember, GlobalSettings, Message, NewChatInput, Provider, Usage,
 } from '../shared/types';
@@ -11,6 +11,8 @@ import type { Store } from './store';
 export type RunTurn = (opts: {
   chatId: string;
   agentId: string;
+  provider: Provider;
+  approvalMode: ChatApprovalMode;
   cwd: string;
   model: string;
   sessionId?: string;
@@ -235,8 +237,8 @@ export class Ensemble {
   }
 
   private async turn(chat: Chat, member: ChatMember, agent: Agent) {
-    if (agent.provider !== 'claude') {
-      this.push(chat, { kind: 'error', agentId: agent.id, text: `${agent.name}: ${agent.provider.toUpperCase()} 에이전트는 아직 실행할 수 없습니다. 지금은 Claude 에이전트만 지원합니다.` });
+    if (!PROVIDERS.find((p) => p.id === agent.provider)?.available) {
+      this.push(chat, { kind: 'error', agentId: agent.id, text: `${agent.name}: ${agent.provider.toUpperCase()} 에이전트는 아직 실행할 수 없습니다. 지금은 Claude와 Codex 에이전트만 지원합니다.` });
       this.changed();
       return;
     }
@@ -246,6 +248,8 @@ export class Ensemble {
     const { done, kill } = this.runTurn({
       chatId: chat.id,
       agentId: agent.id,
+      provider: agent.provider,
+      approvalMode: effectiveMode(agent, chat),
       cwd: chat.folderPath,
       model: agent.model,
       sessionId: member.sessionId,

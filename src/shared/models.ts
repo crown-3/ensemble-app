@@ -2,9 +2,12 @@ import type { Provider } from './types';
 
 export const PROVIDERS: { id: Provider; label: string; available: boolean }[] = [
   { id: 'claude', label: 'Claude', available: true },
-  { id: 'gpt', label: 'GPT', available: false },
+  { id: 'codex', label: 'Codex', available: true },
   { id: 'gemini', label: 'Gemini', available: false },
 ];
+
+// Codex model id that passes no --model, so the user's Codex config decides.
+export const CODEX_DEFAULT_MODEL = 'default';
 
 // Model ids are passed to the provider's CLI as-is (`claude --model <id>`).
 export const MODELS: Record<Provider, { id: string; label: string }[]> = {
@@ -14,7 +17,13 @@ export const MODELS: Record<Provider, { id: string; label: string }[]> = {
     { id: 'claude-fable-5-1', label: 'Fable 5.1' },
     { id: 'claude-haiku-4-5', label: 'Haiku 4.5' },
   ],
-  gpt: [],
+  codex: [
+    { id: CODEX_DEFAULT_MODEL, label: '기본 모델' },
+    { id: 'gpt-6.1-sol', label: 'GPT-6.1-Sol' },
+    { id: 'gpt-6-astra', label: 'GPT-6-Astra' },
+    { id: 'gpt-6-sol', label: 'GPT-6-Sol' },
+    { id: 'gpt-6-luna', label: 'GPT-6-Luna' },
+  ],
   gemini: [],
 };
 
