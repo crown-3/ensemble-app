@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Ensemble새 프로젝트 만들기</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #0a6ae0;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 480px; height: 520px; box-sizing: border-box; padding: 24px; background: #ffffff; color: #1d1d1f; font-family: 'Asta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 16px">
+<form role="dialog" aria-labelledby="np-title" style="margin: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: #f7f7f9; border: 1px solid rgba(0,0,0,0.12); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.10)">
+<h1 id="np-title" style="margin: 0; font-size: 17px; line-height: 22px; font-weight: 600">새 프로젝트</h1>
+<label style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">이름</span>
+<input type="text" placeholder="프로젝트 이름" style="height: 36px; box-sizing: border-box; padding: 0 12px; border: 1px solid #8a8a8f; border-radius: 8px; background: #ffffff"></label>
+<label style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">설명 (선택)</span>
+<textarea rows="3" placeholder="이 프로젝트에서 하려는 작업" style="box-sizing: border-box; width: 100%; padding: 8px 12px; border: 1px solid #8a8a8f; border-radius: 8px; background: #ffffff; font-size: 13px; line-height: 17px; resize: none"></textarea></label>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">작업 폴더</span>
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="flex-grow: 1; min-width: 0; display: flex; align-items: center; height: 36px; box-sizing: border-box; padding: 0 12px; border: 1px solid #8a8a8f; border-radius: 8px; background: #ffffff; color: #6e6e73">선택한 폴더가 없습니다</div>
+<button type="button" style="height: 36px; padding: 0 12px; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff; white-space: nowrap">폴더 선택</button>
+</div>
+<span style="font-size: 11px; line-height: 14px; color: #636368">이 프로젝트의 모든 채팅이 이 폴더 안에서 작업합니다.</span></div>
+<p style="margin: 0; font-size: 12px; line-height: 15px; color: #636368">에이전트는 프로젝트마다 별도의 메모리를 가집니다. 이미 만든 채팅은 프로젝트로 옮길 수 없으며, 프로젝트 안에서 새로 만든 채팅만 여기에 속합니다.</p>
+<div style="display: flex; justify-content: flex-end; gap: 8px">
+<button type="button" style="height: 32px; padding: 0 16px; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff">취소</button>
+<button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 999px; background: #0a6ae0; color: #ffffff; font-weight: 600">만들기</button>
+</div>
+</form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":480,"height":520}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

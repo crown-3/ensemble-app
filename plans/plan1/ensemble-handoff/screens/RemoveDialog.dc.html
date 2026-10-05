@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Ensemble에이전트 내보내기 확인</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #0a6ae0;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 480px; height: 260px; box-sizing: border-box; padding: 24px; background: #ffffff; color: #1d1d1f; font-family: 'Asta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 16px">
+<div role="alertdialog" aria-labelledby="rm-title" style="box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 24px; background: #f7f7f9; border: 1px solid rgba(0,0,0,0.12); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.10)">
+<h1 id="rm-title" style="margin: 0; font-size: 17px; line-height: 22px; font-weight: 600">한서를 이 채팅에서 내보낼까요?</h1>
+<p style="margin: 0; font-size: 13px; line-height: 17px; color: #636368">한서는 이후의 대화를 볼 수 없습니다. 이 프로젝트에서 쌓은 기억은 그대로 유지되며, 언제든지 다시 초대할 수 있습니다.</p>
+<div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px">
+<button style="height: 32px; padding: 0 16px; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff">취소</button>
+<button style="height: 32px; padding: 0 16px; border: 0; border-radius: 999px; background: #c9001a; color: #ffffff; font-weight: 600">내보내기</button>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":480,"height":260}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

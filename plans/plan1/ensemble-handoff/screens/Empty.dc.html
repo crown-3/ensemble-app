@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Ensemble첫 실행 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0a62d0}a:hover{color:#084fa8}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #0a6ae0;outline-offset:2px}
+@media (max-width: 860px){.avec-shell{flex-direction:column !important;height:auto !important}.avec-side{width:auto !important;border-right:0 !important}}
+</style>
+</helmet>
+<div class="avec-shell" style="display: flex; height: 100vh; box-sizing: border-box; background: #ffffff; color: #1d1d1f; font-family: 'Asta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 16px">
+
+<nav class="avec-side" aria-label="프로젝트와 채팅" style="width: 280px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; background: #f1f1f3; border-right: 1px solid #dedee2">
+<div style="height: 52px; flex-shrink: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 16px; border-bottom: 1px solid #dedee2">
+<a href="Main.dc.html" style="font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: 0.04em; color: #1d1d1f; text-decoration: none; display: flex; align-items: center; gap: 8px"><img src="../assets/logo.png" alt="" style="width: 25px; height: 26px; mix-blend-mode: multiply"></a>
+<a href="NewChat.dc.html" aria-label="새 채팅" style="width: 32px; height: 32px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff; color: #636368"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8.5V13H3V3h4.5"></path><path d="M11.5 2.5l2 2L8 10H6V8z"></path></svg></a>
+</div>
+<div style="flex-grow: 1; overflow-y: auto; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; padding: 4px 8px; font-size: 11px; line-height: 14px; font-weight: 600; color: #636368">프로젝트</h2>
+<p style="margin: 0; padding: 4px 8px; font-size: 12px; line-height: 15px; color: #636368">아직 프로젝트가 없습니다.</p>
+<h2 style="margin: 14px 0 0 0; padding: 4px 8px; font-size: 11px; line-height: 14px; font-weight: 600; color: #636368">채팅</h2>
+<p style="margin: 0; padding: 4px 8px; font-size: 12px; line-height: 15px; color: #636368">아직 채팅이 없습니다.</p>
+</div>
+<div style="flex-shrink: 0; padding: 8px; border-top: 1px solid #dedee2; display: flex; flex-direction: column; gap: 2px">
+<a href="Agents.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4.5h7M12.5 4.5H14M2 11.5h1.5M7 11.5h7"></path><circle cx="10.75" cy="4.5" r="1.75"></circle><circle cx="5.25" cy="11.5" r="1.75"></circle></svg><span>전역 역할 설정</span></a>
+<a href="Settings.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"></path><circle cx="8" cy="8" r="2"></circle></svg><span>앱 설정</span></a>
+</div>
+</nav>
+
+<main style="flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 48px 24px; background: #ffffff">
+<div style="max-width: 520px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 700">나만의 에이전트 회사를 시작하세요</h1>
+<p style="margin: 0; color: #636368; font-size: 13px; line-height: 17px">Ensemble에서는 직책과 역할이 다른 에이전트들이 한 채팅에 모여 함께 결과물을 만듭니다.</p>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
+<li style="display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dedee2; border-radius: 14px">
+<span style="width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #e9e9ec; font-size: 11px; font-weight: 600">1</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">모델 계정 연결</span><span style="font-size: 12px; line-height: 15px; color: #636368">에이전트가 사용할 모델의 계정을 연결합니다.</span></span>
+<a href="Settings.dc.html" style="white-space: nowrap; text-decoration: none">연결하기</a>
+</li>
+<li style="display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dedee2; border-radius: 14px">
+<span style="width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #e9e9ec; font-size: 11px; font-weight: 600">2</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">에이전트 만들기</span><span style="font-size: 12px; line-height: 15px; color: #636368">이름, 직책, 모델, 페르소나를 정합니다.</span></span>
+<a href="Agents.dc.html" style="white-space: nowrap; text-decoration: none">만들기</a>
+</li>
+<li style="display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dedee2; border-radius: 14px">
+<span style="width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #e9e9ec; font-size: 11px; font-weight: 600">3</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">첫 채팅 시작</span><span style="font-size: 12px; line-height: 15px; color: #636368">에이전트를 초대하고 첫 메시지를 보냅니다.</span></span>
+<a href="NewChat.dc.html" style="display: flex; align-items: center; height: 32px; padding: 0 16px; border-radius: 999px; background: #0a6ae0; color: #ffffff; font-weight: 600; text-decoration: none; white-space: nowrap">새 채팅</a>
+</li>
+</ol>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

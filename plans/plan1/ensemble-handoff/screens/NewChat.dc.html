@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Ensemble새 채팅 시작</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0a62d0}a:hover{color:#084fa8}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #0a6ae0;outline-offset:2px}
+@media (max-width: 860px){.avec-shell{flex-direction:column !important;height:auto !important}.avec-side{width:auto !important;border-right:0 !important}}
+</style>
+</helmet>
+<div class="avec-shell" style="display: flex; height: 100vh; box-sizing: border-box; background: #ffffff; color: #1d1d1f; font-family: 'Asta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 16px">
+
+<nav class="avec-side" aria-label="프로젝트와 채팅" style="width: 280px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; background: #f1f1f3; border-right: 1px solid #dedee2">
+<div style="height: 52px; flex-shrink: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 16px; border-bottom: 1px solid #dedee2">
+<a href="Main.dc.html" style="font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: 0.04em; color: #1d1d1f; text-decoration: none; display: flex; align-items: center; gap: 8px"><img src="../assets/logo.png" alt="" style="width: 25px; height: 26px; mix-blend-mode: multiply"></a>
+<a href="NewChat.dc.html" aria-label="새 채팅" style="width: 32px; height: 32px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff; color: #636368"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8.5V13H3V3h4.5"></path><path d="M11.5 2.5l2 2L8 10H6V8z"></path></svg></a>
+</div>
+<div style="flex-grow: 1; overflow-y: auto; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; padding: 4px 8px; font-size: 11px; line-height: 14px; font-weight: 600; color: #636368">프로젝트</h2>
+<a href="ProjectHome.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none; font-weight: 700"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#636368" stroke-width="1.5" stroke-linejoin="round"><path d="M2 4.5h4l1.5 1.5H14v6.5H2z"></path></svg><span>브랜드 리뉴얼</span></a>
+<a href="Main.dc.html" style="display: flex; align-items: center; height: 36px; padding: 0 8px 0 32px; border-radius: 8px; color: #1d1d1f; text-decoration: none">랜딩 페이지 카피 초안</a>
+<a href="Main.dc.html" style="display: flex; align-items: center; height: 36px; padding: 0 8px 0 32px; border-radius: 8px; color: #1d1d1f; text-decoration: none">네이밍 후보 검토</a>
+<a href="ProjectHome.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none; font-weight: 700"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#636368" stroke-width="1.5" stroke-linejoin="round"><path d="M2 4.5h4l1.5 1.5H14v6.5H2z"></path></svg><span>주간 리포트 자동화</span></a>
+<h2 style="margin: 14px 0 0 0; padding: 4px 8px; font-size: 11px; line-height: 14px; font-weight: 600; color: #636368">채팅</h2>
+<a href="Main.dc.html" style="display: flex; align-items: center; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none">아이디어 메모 정리</a>
+<a href="Main.dc.html" style="display: flex; align-items: center; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none">회의록 요약</a>
+</div>
+<div style="flex-shrink: 0; padding: 8px; border-top: 1px solid #dedee2; display: flex; flex-direction: column; gap: 2px">
+<a href="Agents.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4.5h7M12.5 4.5H14M2 11.5h1.5M7 11.5h7"></path><circle cx="10.75" cy="4.5" r="1.75"></circle><circle cx="5.25" cy="11.5" r="1.75"></circle></svg><span>전역 역할 설정</span></a>
+<a href="Settings.dc.html" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: 8px; color: #1d1d1f; text-decoration: none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.8l5.4 3.1v6.2L8 14.2l-5.4-3.1V4.9z"></path><circle cx="8" cy="8" r="2"></circle></svg><span>앱 설정</span></a>
+</div>
+</nav>
+
+<main style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; background: #ffffff">
+<header style="height: 52px; flex-shrink: 0; box-sizing: border-box; display: flex; align-items: center; padding: 0 16px; background: #f7f7f9; border-bottom: 1px solid #dedee2">
+<h1 style="margin: 0; font-size: 13px; line-height: 16px; font-weight: 700">새 채팅</h1>
+</header>
+<div style="flex-grow: 1; overflow-y: auto; padding: 48px 24px">
+<div style="max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 700">누구와 시작할까요?</h2>
+<p style="margin: 0; color: #636368">에이전트를 한 명 이상 선택하세요. 채팅을 진행하는 중에도 다른 에이전트를 초대하거나 내보낼 수 있습니다.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="5">
+<button aria-pressed="{{a.pressed}}" onClick="{{ a.toggle }}" style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 12px; border: 2px solid {{a.border}}; border-radius: 14px; background: #ffffff; text-align: left">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: {{a.tint}}; font-size: 15px; font-weight: 700">{{a.initial}}</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-weight: 700">{{a.name}}</span>
+<span style="font-size: 12px; line-height: 15px; color: #636368">{{a.role}}</span>
+<span style="font-size: 11px; line-height: 14px; color: #636368">{{a.model}}</span>
+</span>
+<sc-if value="{{ a.selected }}" hint-placeholder-val="{{ false }}">
+<span aria-hidden="true" style="width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #1d1d1f; color: #ffffff"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"></path></svg></span>
+</sc-if>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 14px; background: #f1f1f3">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#636368" stroke-width="1.5" stroke-linejoin="round" style="flex-shrink: 0"><path d="M2 4.5h4l1.5 1.5H14v6.5H2z"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-weight: 700">프로젝트 없음</div>
+<div style="font-size: 12px; line-height: 15px; color: #636368">이 채팅은 어느 프로젝트에도 속하지 않습니다. 채팅을 만든 뒤에는 프로젝트로 옮길 수 없으므로, 프로젝트에 넣으려면 해당 프로젝트 화면에서 새 채팅을 시작하세요.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dedee2; border-radius: 14px">
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<div style="font-weight: 700">작업 폴더</div>
+<div style="font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 15px">~/Projects/idea-notes</div>
+<div style="font-size: 12px; line-height: 15px; color: #636368">에이전트는 이 폴더 안에서만 파일을 읽고 만들고 수정합니다.</div>
+</div>
+<button style="height: 32px; padding: 0 12px; border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; background: #ffffff">폴더 변경</button>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 11px; line-height: 14px; color: #636368">{{summary}}</div>
+<form style="margin: 0; display: flex; align-items: center; gap: 8px">
+<label style="flex-grow: 1; min-width: 0; display: flex; align-items: center; min-height: 36px; box-sizing: border-box; padding: 0 12px; background: #ffffff; border: 1px solid #8a8a8f; border-radius: 17px">
+<input type="text" placeholder="첫 메시지 입력" aria-label="첫 메시지 입력" style="flex-grow: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 13px; line-height: 17px">
+</label>
+<a href="Main.dc.html" style="display: flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 999px; background: #0a6ae0; color: #ffffff; font-weight: 600; text-decoration: none; white-space: nowrap">채팅 시작</a>
+</form>
+</div>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { picked: ['seoyun', 'doyun'] };
+}
+renderVals() {
+var self = this;
+var picked = this.state.picked;
+var list = [
+{ id: 'seoyun', name: '서윤', initial: '서', role: '기획 리드', model: 'Claude Opus 5.5', tint: '#dfe6f1' },
+{ id: 'doyun', name: '도윤', initial: '도', role: '카피라이터', model: 'GPT Sol 6.1', tint: '#e8e2d6' },
+{ id: 'hanseo', name: '한서', initial: '한', role: '디자이너', model: 'Gemini Flash 3.1 Pro', tint: '#dde9e1' },
+{ id: 'jian', name: '지안', initial: '지', role: '리서처', model: 'Claude Opus 5.5', tint: '#eadfe6' },
+{ id: 'taeo', name: '태오', initial: '태', role: '개발자', model: 'GPT Sol 6.1', tint: '#e3e3ea' }
+];
+var agents = list.map(function (a) {
+var on = picked.indexOf(a.id) >= 0;
+return Object.assign({}, a, {
+selected: on,
+pressed: on ? 'true' : 'false',
+border: on ? '#1d1d1f' : '#dedee2',
+toggle: function () {
+self.setState({ picked: on ? picked.filter(function (x) { return x !== a.id; }) : picked.concat([a.id]) });
+}
+});
+});
+var names = agents.filter(function (a) { return a.selected; }).map(function (a) { return a.name; });
+var summary = names.length ? names.join(', ') + ' 선택됨 · ' + names.length + '명' : '선택된 에이전트가 없습니다. 한 명 이상 선택해야 채팅을 시작할 수 있습니다.';
+return { agents: agents, summary: summary };
+}
+}
+</script>
+</body>
+</html>

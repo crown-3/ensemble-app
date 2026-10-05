@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Ensemble에이전트 초대 팝오버</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0a62d0}a:hover{color:#084fa8}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #0a6ae0;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 400px; height: 440px; box-sizing: border-box; padding: 24px; background: #ffffff; color: #1d1d1f; font-family: 'Asta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 16px">
+<div role="dialog" aria-label="에이전트 초대" style="box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 16px; background: #f7f7f9; border: 1px solid rgba(0,0,0,0.12); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.10)">
+<h1 style="margin: 0; font-size: 17px; line-height: 22px; font-weight: 600">에이전트 초대</h1>
+<label style="display: flex; align-items: center; gap: 8px; height: 32px; box-sizing: border-box; padding: 0 12px; background: #ffffff; border: 1px solid #8a8a8f; border-radius: 999px; color: #6e6e73">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+<input type="search" placeholder="이름 또는 직책 검색" aria-label="이름 또는 직책 검색" style="flex-grow: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #1d1d1f">
+</label>
+
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #eadfe6; font-size: 15px; font-weight: 700">지</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">지안</span><span style="font-size: 12px; line-height: 15px; color: #636368">리서처 · Claude Opus 5.5</span></span>
+<button style="height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: #0a6ae0; color: #ffffff; font-weight: 600">초대</button>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #e3e3ea; font-size: 15px; font-weight: 700">태</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">태오</span><span style="font-size: 12px; line-height: 15px; color: #636368">개발자 · GPT Sol 6.1</span></span>
+<button style="height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: #0a6ae0; color: #ffffff; font-weight: 600">초대</button>
+</div>
+</div>
+
+<fieldset style="margin: 0; padding: 12px 0 0 0; border: 0; border-top: 1px solid #dedee2; display: flex; flex-direction: column; gap: 8px">
+<legend style="padding: 0; font-size: 11px; line-height: 14px; font-weight: 600; color: #636368">초대된 에이전트가 읽을 범위</legend>
+<label style="display: flex; align-items: flex-start; gap: 8px"><input type="radio" name="scope" checked style="margin: 2px 0 0 0"><span style="display: flex; flex-direction: column; gap: 2px"><span>이전 대화 전체</span><span style="font-size: 11px; line-height: 14px; color: #636368">이 채팅의 처음부터 읽고 참여합니다.</span></span></label>
+<label style="display: flex; align-items: flex-start; gap: 8px"><input type="radio" name="scope" style="margin: 2px 0 0 0"><span style="display: flex; flex-direction: column; gap: 2px"><span>지금부터</span><span style="font-size: 11px; line-height: 14px; color: #636368">초대된 이후의 메시지만 읽습니다.</span></span></label>
+</fieldset>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":400,"height":440}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
